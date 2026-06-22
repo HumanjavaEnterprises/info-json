@@ -1,0 +1,19 @@
+{
+  "name": "@humanjavaenterprises/info-json",
+  "version": "0.1.0",
+  "description": "The INFO.json open standard — shared builder + validator for the bpub-business/0.1 agent-readable business manifest. One source of truth across bpub, Business Bios, SendRelay, and VoxRelay.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./schema": "./schema/bpub-business-0.1.json"
+  },
+  "files": ["src", "schema", "README.md"],
+  "scripts": {
+    "test": "node test/build.test.mjs"
+  },
+  "license": "CC-BY-4.0",
+  "repository": { "type": "git", "url": "https://github.com/HumanjavaEnterprises/info-json.git" },
+  "keywords": ["info.json", "agent", "llm", "business", "manifest", "bpub", "nostr", "agentic", "directory"],
+  "author": "Humanjava Enterprises"
+}
