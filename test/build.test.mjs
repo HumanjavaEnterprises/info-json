@@ -43,6 +43,11 @@ ok('explicit channels respected', m2.channels.book.via === 'voice' && m2.channel
 ok('ask backfilled from page', m2.channels.ask.endpoint === 'https://followthesun.bpub.app');
 ok('branding.icon (DiceBear recipe) carried', m2.branding.icon.style === 'icons');
 
+// ── hours carried through ──
+const mh = buildBusinessManifest({ name: 'X', page: 'https://x', hours: [{ day: 'mon', open: '09:00', close: '17:00', tz: 'America/Vancouver' }] });
+ok('hours carried to output', Array.isArray(mh.hours) && mh.hours[0].close === '17:00');
+ok('hours null when absent', m2.hours === null);
+
 // ── linksToChannels unit ──
 const ch = linksToChannels([{ kind: 'menu', url: 'https://m' }, { kind: 'support', url: 'help@x.ca' }], { pageUrl: 'https://x' });
 ok('linksToChannels menu + support(email) + ask', ch.menu.endpoint === 'https://m' && ch.support.endpoint === 'mailto:help@x.ca' && ch.ask.endpoint === 'https://x');

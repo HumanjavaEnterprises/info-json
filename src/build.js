@@ -88,6 +88,7 @@ export function buildBusinessManifest(input = {}) {
       ? { icon: icon || null, logo: logo || null, colors: colors || null }
       : null,
     channels,
+    hours: hours || null,
     agents: { policy: 'read-and-transact', transact_via: 'channels' },
     resilience: {
       canonical: pageUrl,
