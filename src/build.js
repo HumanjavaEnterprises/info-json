@@ -16,7 +16,7 @@ export function linksToChannels(links = [], { pageUrl } = {}) {
     if (!l || !l.url) continue;
     switch (l.kind) {
       case 'booking': ch.book = { via: 'web', endpoint: l.url }; break;
-      case 'pay': ch.pay = { via: 'web', endpoint: l.url }; break;
+      case 'pay': ch.pay = payChannel(l.url); break;
       case 'menu': ch.menu = { via: 'web', endpoint: l.url }; break;
       case 'website': ch.website = { via: 'web', endpoint: l.url }; break;
       case 'support':
@@ -32,6 +32,15 @@ export function linksToChannels(links = [], { pageUrl } = {}) {
 }
 
 const asMailto = (u) => (u.startsWith('mailto:') ? u : `mailto:${u}`);
+
+// A pay link addressed to an email is an Interac e-Transfer endpoint (Canadian-first:
+// you send money TO an email address), not a web checkout. Interac endpoints stay bare
+// — `payments@x.ca`, not `mailto:payments@x.ca` — so an agent can hand them straight to
+// a banking flow. Anything else (a Stripe/Square/checkout URL) remains `via: 'web'`.
+const isEmailish = (u) => /^mailto:/i.test(u) || (!/^[a-z][a-z0-9+.-]*:/i.test(u) && /^[^\s/@]+@[^\s/@]+\.[^\s/@]+$/.test(u));
+const payChannel = (url) => (isEmailish(url)
+  ? { via: 'interac', endpoint: url.replace(/^mailto:/i, '') }
+  : { via: 'web', endpoint: url });
 
 /**
  * @param {object} input — the normalized record:

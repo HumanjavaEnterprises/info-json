@@ -57,7 +57,7 @@
         "type": ["object", "null"],
         "required": ["via", "endpoint"],
         "properties": {
-          "via": { "enum": ["web", "email", "sms", "voice", "mcp", "api"] },
+          "via": { "enum": ["web", "email", "sms", "voice", "mcp", "api", "interac"] },
           "endpoint": { "type": "string" },
           "languages": { "type": "array", "items": { "type": "string" } },
           "auto_answerable": { "type": "boolean" },

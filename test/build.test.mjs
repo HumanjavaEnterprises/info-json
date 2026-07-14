@@ -1,5 +1,5 @@
 // Tests for the shared INFO.json builder + validator.
-import { buildBusinessManifest, linksToChannels, validateBusinessManifest, BPUB_BUSINESS } from '../src/index.js';
+import { buildBusinessManifest, linksToChannels, validateBusinessManifest, BPUB_BUSINESS, CHANNEL_VIA } from '../src/index.js';
 
 let pass = 0, fail = 0;
 const ok = (name, cond) => { cond ? (pass++, console.log('  ok  ', name)) : (fail++, console.log('  FAIL', name)); };
@@ -47,6 +47,28 @@ ok('branding.icon (DiceBear recipe) carried', m2.branding.icon.style === 'icons'
 const mh = buildBusinessManifest({ name: 'X', page: 'https://x', hours: [{ day: 'mon', open: '09:00', close: '17:00', tz: 'America/Vancouver' }] });
 ok('hours carried to output', Array.isArray(mh.hours) && mh.hours[0].close === '17:00');
 ok('hours null when absent', m2.hours === null);
+
+// ── interac: the spec's own flagship example must validate (regression) ──
+// sendrelay.bizdocs.src/strategy/info-json-standard.md ships `pay: { via: "interac", … }`.
+const mi = buildBusinessManifest({
+  name: 'Follow the Sun Tanning', page: 'https://followthesun.bpub.app',
+  channels: {
+    book: { via: 'voice', endpoint: '+12505550123' },
+    pay: { via: 'interac', endpoint: 'payments@followthesun.ca', note: 'e-transfer; holding place only' },
+    support: { via: 'email', endpoint: 'support@followthesun.ca' },
+    ask: { via: 'mcp', endpoint: 'https://followthesun.bpub.app/mcp' },
+  },
+});
+ok('interac pay channel carried', mi.channels.pay.via === 'interac' && mi.channels.pay.endpoint === 'payments@followthesun.ca');
+const vi = validateBusinessManifest(mi);
+ok('spec example (pay via interac) VALIDATES', vi.valid === true);
+if (!vi.valid) console.log('       errors:', vi.errors);
+ok('CHANNEL_VIA includes interac', CHANNEL_VIA.includes('interac'));
+
+// email-shaped pay link → interac (bare endpoint); URL pay link stays web
+const chp = linksToChannels([{ kind: 'pay', url: 'mailto:payments@x.ca' }], { pageUrl: 'https://x' });
+ok('email pay link → via interac, bare endpoint', chp.pay.via === 'interac' && chp.pay.endpoint === 'payments@x.ca');
+ok('url pay link stays via web', linksToChannels([{ kind: 'pay', url: 'https://pay.x' }]).pay.via === 'web');
 
 // ── linksToChannels unit ──
 const ch = linksToChannels([{ kind: 'menu', url: 'https://m' }, { kind: 'support', url: 'help@x.ca' }], { pageUrl: 'https://x' });
